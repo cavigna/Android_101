@@ -1,5 +1,8 @@
 # Injección de Dependencia Manual
 
+Siguiendo lo explicado en la [pagina de Google](https://developer.android.com/training/dependency-injection/manual?hl=es-419#:~:text=La%20inyecci%C3%B3n%20de%20dependencia%20es,instancias%20de%20clases%20con%20f%C3%A1bricas.),  nos recomienda la di por lo siguiente:
+>" La inyección de dependencia es una buena técnica a la hora de crear apps para Android escalables que puedan someterse a prueba. Usa contenedores como una manera de compartir instancias de clases en diferentes partes de tu app y como un lugar centralizado para crear instancias de clases con fábricas. Cuando se expanda tu aplicación, comenzarás a ver que escribes mucho código estándar (como fábricas), que puede ser propenso a errores. También debes administrar el alcance y el ciclo de vida de los contenedores por tu cuenta, optimizando y descartando los contenedores que ya no se necesitan para liberar memoria. Hacer esto de forma incorrecta puede generar errores sutiles y pérdidas de memoria en tu app"
+
 Supongamos que tenemos una app con 10 activitys y 5 fragmentos cada una, eso implicaría que si tenemos un viewmodel con API/ROOM, necesitariamos instanciar 50 veces el repositorio, la base de datos, etc. Por ende, para simplificar un poco las cosas podemos utilizar una mini injección de dependencias. Suponiendo que tenemos un servicio de retrofit, una base de datos y un repositorio de la siguiente manera:
 
 #### - ```Dao.kt``` 
