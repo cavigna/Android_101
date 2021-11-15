@@ -89,7 +89,9 @@ En la actividad/fragment, implementamos la interfaz
 
 ```kotlin
 
-class AlgunFragment : Fragment(), AlgunListAdapter.MiEscuchador{
+class AlgunFragment : Fragment(), AlgunListAdapter.MiEscuchador{ 
+    //                               ↑
+    // Avisamos que Implementaremos la interfaz
         override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -97,6 +99,12 @@ class AlgunFragment : Fragment(), AlgunListAdapter.MiEscuchador{
         binding = FragmentFavBinding.inflate(layoutInflater, container, false)
     //.....
 
+        val recyclerView = binding.recyclerViewFav
+       
+        val adapter = FavListAdapter(this)
+        //              ↑ (alt+24)
+
+        // como argunemento del adaptador, referimos a this!
         return binding.root
     }
 
