@@ -1,5 +1,6 @@
 # Room Database
 
+
 ## 1 - Gradle
 
 Agrueguemos las librerías necesarias:
@@ -341,6 +342,10 @@ class ListFragment : Fragment(), MensajeListAdapter.MiExtractor {
 }
 
 ```
+## 8 - Estructura final del proyecto
+
+<img src= "imagenes/0.jpg">
+
 
 # Algunas Imágenes
 
