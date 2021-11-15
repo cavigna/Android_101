@@ -89,6 +89,15 @@ Debemos agregar en el MANIFEST nuestra Application
 
 ## En Fragmento
 
+>**Importante:** Si estamos en un fragmento, debemos usar by activityViewModels de la librería : ```import androidx.fragment.app.activityViewModels```.
+  "Returns a property delegate to access ViewModel by default scoped to this Fragment. Custom ViewModelProvider.Factory can be defined via factoryProducer parameter, factory returned by it will be used to create ViewModel":
+
+```kotlin
+class MyFragment : Fragment() {
+    val viewmodel: MyViewModel by viewmodels { myFactory }
+}
+```
+
 ```kotlin
 
 class AlgunFragment : Fragment() {
@@ -121,6 +130,14 @@ class AlgunFragment : Fragment() {
 ```
 
 ## En Activity
+>**Importante:** Si estamos en una actividad, debemos usar by viewModels de la librería : ```import androidx.activity.viewModels```.
+  "Returns a property delegate to access parent activity's ViewModel, if factoryProducer is specified then ViewModelProvider.Factory returned by it will be used to create ViewModel first time. Otherwise, the activity's default factory will be used.":
+
+```kotlin
+class MyFragment : Fragment() {
+    val viewmodel: MyViewModel by activityViewModels()
+}
+```
 
 ```kotlin
 class MainActivity : AppCompatActivity() {
