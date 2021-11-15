@@ -154,3 +154,199 @@ abstract class BaseDeDatos : RoomDatabase() {
 }
 
 ```
+
+## 4 - Repositorio
+
+El Repo requiere como argumento ``private val dao: MensajeDao``. De aquí podremos hacer las consultas a la base de datos que serán requeridas por el *ViewModel*
+
+```kotlin
+class Repositorio(private val dao: MensajeDao) {
+
+    suspend fun agregarMensaje(mensaje: Mensaje) = dao.agregarMensaje(mensaje)
+
+    suspend fun borrarMensaje(mensaje: Mensaje) = dao.borrarMensaje(mensaje)
+
+    fun listadoMensaje(): Flow<List<Mensaje>> = dao.listadoMensajes()
+}
+```
+
+## 5 - ViewModel
+
+El ViewModel hereda de ``androidx.lifecycle.ViewModel`` y tiene como argumento el repositorio que hemos creado antes ``private val repositorio: Repositorio``.
+Como se dijo anteriormente cuando trabjamos con LiveData no es necesario declarar una función de tipo *suspend* ya que LiveData lo implementa. Distinto es el caso con agregar o borrar, en estos si debemos delcarar que es una corrutina. Haciendo un breve repaso, recordemos que una corrutina requiere:
+1. Scope: Cual es el alcance de la Corrutina
+2. Un Contexto, que puede ser declarado en  en el Scope
+3. Un Builder, que puede ser launch con su Dispatcher.
+
+Por ende:
+```kotlin
+         CoroutineScope(context).launch (IO){ 
+         // 1. ↑
+         //              2.↑        
+         //                      3.↑   
+        }
+
+
+```
+
+Como estamos en un ViewModel heredando de ``ViewModel()``, la librería del [lifecycle](https://developer.android.com/topic/libraries/architecture/lifecycle?hl=es), esta nos proporciona con un scope predefinido, con su contexto:
+>Se define un ViewModelScope para cada objeto ViewModel de tu app. Si se borra ViewModel, se cancela automáticamente cualquier corrutina iniciada en este alcance. Las corrutinas son útiles cuando tienes trabajos que se deben hacer solo si ViewModel está activo
+
+Por ende:
+```kotlin
+          viewModelScope.launch(IO) {
+         // 1. ↑
+         //              2.↑        
+         //                      3.↑   
+        }
+
+
+```
+
+```kotlin
+class MensajeViewModel(private val repositorio: Repositorio): ViewModel() {    
+    
+    val listadoMensaje: LiveData<List<Mensaje>> = repositorio.listadoMensaje().asLiveData()
+    
+    fun agregarMensaje(mensaje: Mensaje){
+        viewModelScope.launch { 
+            repositorio.agregarMensaje(mensaje)
+        }
+    }
+    
+    fun borrarMensaje(mensaje: Mensaje){
+        viewModelScope.launch { 
+            repositorio.borrarMensaje(mensaje)
+        }
+        
+    }
+}
+```
+
+**Importante: Recordar que cuando necesitamos instanciar un viewmodel con argumentos tenemos que crear un Factory que nos devuelva el mismo con su argumento, en este caso un repositorio**
+
+```kotlin
+class MensajeModelFactory(private val repositorio: Repositorio): ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        return MensajeViewModel(repositorio) as T
+    }
+}
+
+```
+
+## 6 - Injección de Dependencias Manual
+
+Creamos una clase que herede de ``Application()`` , donde instanciaremos nuestra base de datos y nuestro repositorio:
+
+```kotlin
+class MensajeApplication : Application() {
+
+    private val database by lazy { BaseDeDatos.getDataBase(this) }
+    val repositorio by lazy { Repositorio(database.dao()) }
+}
+```
+**Recordar que hay que agregar al manifest el ``MensajeApplication``**
+
+## 7 - Fragmentos y ViewModel
+
+En el fragmento debemos intanciar el viewmodel y la aplicación. Desde el ``onCreateView`` llamamos al viewmodel y agremaos los datos a la DB.
+
+```kotlin
+
+class HomeFragment : Fragment() {
+    private lateinit var binding: FragmentHomeBinding
+    private lateinit var application: Application // App
+
+    private val viewModel by viewModels<MensajeViewModel> {
+        MensajeModelFactory((application as MensajeApplication).repositorio)
+    } // Instanciamos el ViewModel Con su Model Factory y el repositorio desde la clase
+    // Application haciendo un casting (application as MensajeApplication).repositorio
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        application =  requireActivity().application // Instanciamos la APP
+
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentHomeBinding.inflate(inflater, container, false)
+
+        val boton = binding.button
+
+        boton.setOnClickListener {
+            val et = binding.etmensaje.text.toString()
+
+
+            val mensaje = Mensaje(mensaje = et)
+            viewModel.agregarMensaje(mensaje)
+
+            Toast.makeText(requireContext(), "Mensaje Agregado", Toast.LENGTH_SHORT).show()
+        }
+
+        return binding.root
+    }
+
+
+}
+
+```
+
+Si mostramos un listado y queremo borrar un elemento recordar el uso de interfaz para extraer el objeto:
+```kotlin
+class ListFragment : Fragment(), MensajeListAdapter.MiExtractor {
+    private lateinit var binding: FragmentListBinding
+    private lateinit var application: Application
+
+    private val viewModel by viewModels<MensajeViewModel> {
+        MensajeModelFactory((application as MensajeApplication).repositorio)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        application = requireActivity().application
+
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentListBinding.inflate(layoutInflater, container, false)
+
+        val recyclerView = binding.recyclerView
+        val adapter = MensajeListAdapter(this)
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+
+
+        viewModel.listadoMensaje.observe(viewLifecycleOwner, {
+            adapter.submitList(it)
+        })
+
+
+        return binding.root
+
+    }
+
+    override fun extraerMensaje(mensaje: Mensaje) {
+        viewModel.borrarMensaje(mensaje)
+    }
+
+
+}
+
+```
+
+# Algunas Imágenes
+
+<img src= "imagenes/1.jpg">
+<img src= "imagenes/2.jpg">
+<img src= "imagenes/3.jpg">
+<img src= "imagenes/4.jpg">
+<img src= "imagenes/5.jpg">
+<img src= "imagenes/6.jpg">
