@@ -73,6 +73,9 @@ android {
 
     packagingOptions {
         exclude 'META-INF/atomicfu.kotlin_module'
+        exclude "META-INF/licenses/**" //testing
+        exclude "META-INF/AL2.0" //testing
+        exclude "META-INF/LGPL2.1" //testing
     }
 }
 
@@ -124,7 +127,12 @@ dependencies {
 
     implementation("io.coil-kt:coil:1.4.0")
 
-    //SafeArgs
+        //Coroutines
+    androidTestImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.2'
+
+    //test google
+    androidTestImplementation "com.google.truth:truth:1.1.3"
+    androidTestImplementation "androidx.arch.core:core-testing:2.0.0"
 
 }
 
