@@ -127,12 +127,17 @@ dependencies {
 
     implementation("io.coil-kt:coil:1.4.0")
 
-        //Coroutines
+    //Coroutines Test
     androidTestImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.2'
 
     //test google
     androidTestImplementation "com.google.truth:truth:1.1.3"
     androidTestImplementation "androidx.arch.core:core-testing:2.0.0"
+
+    //MockWebServer
+    androidTestImplementation "com.squareup.okhttp3:mockwebserver:4.9.2"
+    androidTestImplementation "com.squareup.okhttp3:okhttp:4.9.2"
+    debugImplementation 'com.squareup.okhttp3:okhttp:4.9.2'
 
 }
 
