@@ -28,6 +28,13 @@ Coil
 https://github.com/coil-kt/coil
 
 
+Activity
+https://developer.android.com/jetpack/androidx/releases/activity
+
+Fragment
+https://developer.android.com/jetpack/androidx/releases/fragment
+
+
 ```gradle
 
 plugins {
@@ -123,6 +130,8 @@ dependencies {
     //annotationProcessor "androidx.room:room-compiler:$room_version"
 
 
+
+
     //Coil
 
     implementation("io.coil-kt:coil:1.4.0")
@@ -138,6 +147,16 @@ dependencies {
     androidTestImplementation "com.squareup.okhttp3:mockwebserver:4.9.2"
     androidTestImplementation "com.squareup.okhttp3:okhttp:4.9.2"
     debugImplementation 'com.squareup.okhttp3:okhttp:4.9.2'
+
+
+        //by viewModels ==== OPCIONALES
+    def activity_version = "1.4.0"
+
+    implementation "androidx.activity:activity-ktx:$activity_version"
+
+    def fragment_version = "1.3.6"
+
+    implementation "androidx.fragment:fragment-ktx:$fragment_version"
 
 }
 
