@@ -1,5 +1,6 @@
 <h1>Utils</h1>
 
+<h2>Hide KeyBoard</h2>
 
 ```kotlin
 
@@ -24,7 +25,68 @@ fun Context.hideKeyboard(view: View) {
 
 ```
 
+<h2>Some fun funs</h2>
+
 ```kotlin
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.example.simpledict.model.models.api.ResultWordApi
+import com.example.simpledict.model.models.Word
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
+
+inline fun <T> Flow<T>.launchAndCollectIn(
+    owner: LifecycleOwner,
+    minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
+    crossinline action: suspend CoroutineScope.(T) -> Unit
+) = owner.lifecycleScope.launch {
+    owner.repeatOnLifecycle(minActiveState) {
+        collect {
+            action(it)
+        }
+    }
+}
+
+//To reduce BiolerPlate.
+//Needs to use viewLifecyleOwner 'cause it's a fragment.
+inline fun Fragment.launchAndRepeatWithViewLifecycle(
+    minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
+    crossinline block: suspend CoroutineScope.() -> Unit
+) {
+    viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.lifecycle.repeatOnLifecycle(minActiveState) {
+            block()
+        }
+    }
+}
+
+fun toListOfWords(list: List<ResultWordApi>):List<Word>{
+    val listadoWord = mutableListOf<Word>()
+    list.forEach {
+        listadoWord.add(it.toWord())
+    }
+    return listadoWord
+}
+
+inline fun <T> List<ResultWordApi>.toWords():List<Word>{
+    val listadoWord = mutableListOf<Word>()
+    this.forEach {
+        listadoWord.add(it.toWord())
+    }
+    return listadoWord
+}
+```
+
+
+<h2>TypeConverters</h2>
+
+```kotlin
+@TypeConverters
 import androidx.room.TypeConverter
 
 class Converters {
@@ -54,6 +116,19 @@ class Converters {
         val numeros = string?.split(",")
 
         return numeros?.map { it.toIntOrNull() }
+    }
+
+        @TypeConverter
+    fun fromMeaning(json:String):List<Meaning>{
+        val type=object : TypeToken<List<Meaning>>(){}.type
+        return Gson().fromJson(json,type)
+    }
+    @TypeConverter
+    fun toMeaning(meanings:List<Meaning>):String{
+
+        val type =object :TypeToken<List<Meaning>>(){}.type
+
+        return Gson().toJson(meanings,type)?: "[]"
     }
 }
 
