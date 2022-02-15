@@ -133,3 +133,21 @@ class Converters {
 }
 
 ```
+
+
+</h2>Media Player</h2>
+
+```kotlin
+ val mediaPlayer = MediaPlayer().apply {
+                            setAudioAttributes(
+                                AudioAttributes.Builder()
+                                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                                    .build()
+                            )
+                            setDataSource("https://...")
+                            prepare()
+                            start()
+
+                        }
+```
