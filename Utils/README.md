@@ -151,3 +151,50 @@ class Converters {
 
                         }
 ```
+
+
+
+
+</h2>Media Player</h2>
+
+```kotlin
+inline fun <ResultType, RequestType> networkBoundResource(
+    crossinline query: () -> Flow<ResultType>,
+    crossinline fetch: suspend () -> RequestType,
+    crossinline saveFetchResult: suspend (RequestType) -> Unit,
+    crossinline shouldFetch: (ResultType?) -> Boolean = { true },
+    coroutineDispatcher: CoroutineDispatcher = IO
+) = flow<Resource<ResultType>> {
+
+    // check for data in database
+    val data = query().firstOrNull()
+
+    if (data != null) {
+        Log.v("pruebas", "IN DB")
+        // data is not null -> update loading status
+        emit(Resource.Loading(data))
+    }else{
+        // Need to fetch data -> call backend
+        val fetchResult = fetch()
+        // got data from backend, store it in database
+        saveFetchResult(fetchResult)
+        Log.v("pruebas", "BUSCADO EN LA API")
+    }
+
+    // load updated data from database (must not return null anymore)
+    val updatedData = query().first()
+
+    // emit updated data
+    emit(Resource.Success(updatedData))
+
+}.onStart {
+    Log.v("pruebas", "Loading")
+    emit(Resource.Loading(null))
+
+}.catch { exception ->
+    Log.v("pruebas", "error")
+    emit(Resource.Error(exception, null))
+
+
+}.flowOn(coroutineDispatcher)
+```
