@@ -86,6 +86,28 @@ fun toCurrency(precio:Int): String {
     numberFormat.maximumFractionDigits =2
     return numberFormat.format(precio)
 }
+
+fun sendEmailIntent(cakeDetails: CakeDetails, context: Context){
+
+    val i = Intent(Intent.ACTION_SEND)
+    i.type = "message/rfc822"
+
+    i.putExtra(Intent.EXTRA_EMAIL, arrayOf("email@emial.com"))
+    i.putExtra(Intent.EXTRA_SUBJECT, ": Solicito información sobre  ${cakeDetails.id}")
+    i.putExtra(Intent.EXTRA_TEXT, "“Hola\n" +
+            "Quisiera pedir información sobre esta torta ${cakeDetails.title}, me gustaría que me contactaran a\n" +
+            "este correo o al siguiente número _________\n" +
+            "Quedo atento.”\n")
+
+    try {
+        context.startActivity(Intent.createChooser(i, "Send mail..."))
+    } catch (ex: ActivityNotFoundException) {
+        Toast.makeText(
+            context,
+            R.string.error_email,
+            Toast.LENGTH_SHORT
+        ).show()
+    }
 ```
 
 
