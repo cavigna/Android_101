@@ -56,6 +56,13 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+    packagingOptions {
+        exclude 'META-INF/atomicfu.kotlin_module'
+        exclude "META-INF/licenses/**" //testing
+        exclude "META-INF/AL2.0" //testing
+        exclude "META-INF/LGPL2.1" //testing
+    }
 }
 
 dependencies {

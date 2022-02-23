@@ -25,6 +25,14 @@ class HomeFragment : Fragment() {
     ): View? {
         binding = FragmentHomeBinding.inflate(layoutInflater, container, false)
 
+
+        return binding.root
+    }
+
+
+}
+
+/*
         this.launchAndRepeatWithViewLifecycle {
             viewModel.homeState.collect {uiState->
                 when(uiState){
@@ -32,8 +40,4 @@ class HomeFragment : Fragment() {
                 }
             }
         }
-        return binding.root
-    }
-
-
-}
+         */

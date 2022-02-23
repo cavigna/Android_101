@@ -28,13 +28,6 @@ class HomeFragment : Fragment() {
     ): View? {
         binding = FragmentHomeBinding.inflate(layoutInflater, container, false)
 
-        this.launchAndRepeatWithViewLifecycle {
-            viewModel.homeState.collect {uiState->
-                when(uiState){
-                    is UiHomeState.Success -> binding.prueba.text =uiState.listCoins.toString()
-                }
-            }
-        }
         return binding.root
     }
 
