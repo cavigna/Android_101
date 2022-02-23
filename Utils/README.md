@@ -80,6 +80,12 @@ inline fun <T> List<ResultWordApi>.toWords():List<Word>{
     }
     return listadoWord
 }
+
+fun toCurrency(precio:Int): String {
+    val numberFormat = NumberFormat.getCurrencyInstance(Locale("ES", "CL"))
+    numberFormat.maximumFractionDigits =2
+    return numberFormat.format(precio)
+}
 ```
 
 
